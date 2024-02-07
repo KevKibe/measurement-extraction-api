@@ -1,8 +1,8 @@
-# Measurement Extraction API Documentation
+Measurement Extraction API Documentation
 The Measurement Extraction API is a Flask-based web service that allows users to extract body measurements from front and side images of a person. This documentation provides information on how to interact with the API, the available endpoints, and their functionalities.
 
 Base URL
-The base URL for accessing the Measurement Extraction API is http://localhost:5000 when running locally. For production deployment, replace localhost with the appropriate domain name.
+The base URL for accessing the Measurement Extraction API is https://api-measurement-extraction.onrender.com.
 
 Endpoints
 Extract Measurements

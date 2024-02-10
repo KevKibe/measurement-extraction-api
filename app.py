@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from measurement import extract_measurements
 
 app = Flask(__name__)
+CORS(app, origins='*')  # Enable CORS for all origins
 
 @app.route('/extract_measurements', methods=['POST'])
 def handle_extraction():

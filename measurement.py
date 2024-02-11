@@ -95,13 +95,14 @@ def estimate_hip(side_image):
 def estimate_shoulder_width(front_image):
     # Placeholder function for shoulder width estimation
     # Example: You can find the widest distance between shoulder contours
-    _, contours, _ = cv2.findContours(front_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(front_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     max_width = 0
     for contour in contours:
         _, _, width, _ = cv2.boundingRect(contour)
         if width > max_width:
             max_width = width
     return max_width
+
 
 def estimate_arm_length(front_image):
     # Placeholder function for arm length estimation

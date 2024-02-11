@@ -117,10 +117,12 @@ def estimate_arm_length(front_image):
     
     max_length = 0
     for contour in contours:
-        length = cv2.arcLength(contour, True)
-        if length > max_length:
-            max_length = length
+        if len(contour) > 0:  # Check if contour is valid
+            length = cv2.arcLength(contour, True)
+            if length > max_length:
+                max_length = length
     return max_length
+
 
 def estimate_leg_length(side_image):
     # Placeholder function for leg length estimation

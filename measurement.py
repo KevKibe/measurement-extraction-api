@@ -107,7 +107,7 @@ def estimate_shoulder_width(front_image):
 def estimate_arm_length(front_image):
     # Placeholder function for arm length estimation
     # Example: You can find the longest contour representing the arm
-    contours = cv2.findContours(front_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(front_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if len(contours) == 3:  # OpenCV 4.x
         contours = contours[0]
     elif len(contours) == 2:  # OpenCV 3.x

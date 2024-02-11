@@ -47,8 +47,7 @@ def extract_measurements(front_image, side_image, user_height):
     # Range checks and validations
     if height > 250:
         raise ValueError("Height exceeds maximum limit")
-    if any(measurement > 250 for measurement in [chest, waist, hip, shoulder_width, arm_length, leg_length, neck_circumference, head_circumference, foot_length, wrist_circumference, bicep_circumference]):
-        raise ValueError("One or more measurements exceed maximum limit")
+ 
 
     measurements = {
         "height": round(height, 1),

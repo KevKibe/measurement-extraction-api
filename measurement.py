@@ -2,7 +2,22 @@ import cv2
 import numpy as np
 from utils import resize_image
 
-def extract_measurements(front_image, side_image):
+def preprocess_image(image):
+    # Convert to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    
+    # Noise reduction using Gaussian blur
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    
+    # Contrast enhancement using histogram equalization
+    equalized = cv2.equalizeHist(blurred)
+    
+    # Normalization
+    normalized = cv2.normalize(equalized, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+    
+    return normalized
+
+def extract_measurements(front_image, side_image, user_height):
     # Preprocess images
     front_rgb = cv2.cvtColor(cv2.imdecode(np.frombuffer(front_image.read(), np.uint8), -1), cv2.COLOR_BGR2RGB)
     side_rgb = cv2.cvtColor(cv2.imdecode(np.frombuffer(side_image.read(), np.uint8), -1), cv2.COLOR_BGR2RGB)
@@ -10,22 +25,24 @@ def extract_measurements(front_image, side_image):
     # Resize images to a common size
     front_resized = resize_image(front_rgb, width=800)
     side_resized = resize_image(side_rgb, width=800)
-
+    
+    # Preprocess images
+    front_preprocessed = preprocess_image(front_resized)
+    side_preprocessed = preprocess_image(side_resized)
 
     # Feature extraction and measurement estimation
-    # Placeholder estimation functions
-    height = estimate_height(front_resized, side_resized)
-    chest = estimate_chest(front_resized)
-    waist = estimate_waist(front_resized)
-    hip = estimate_hip(side_resized)
-    shoulder_width = estimate_shoulder_width(front_resized)
-    arm_length = estimate_arm_length(front_resized)
-    leg_length = estimate_leg_length(side_resized)
-    neck_circumference = estimate_neck_circumference(front_resized)
-    head_circumference = estimate_head_circumference(front_resized)
-    foot_length = estimate_foot_length(side_resized)
-    wrist_circumference = estimate_wrist_circumference(front_resized)
-    bicep_circumference = estimate_bicep_circumference(front_resized)
+    height = user_height
+    chest = estimate_chest(front_preprocessed)
+    waist = estimate_waist(front_preprocessed)
+    hip = estimate_hip(side_preprocessed)
+    shoulder_width = estimate_shoulder_width(front_preprocessed)
+    arm_length = estimate_arm_length(front_preprocessed)
+    leg_length = estimate_leg_length(side_preprocessed)
+    neck_circumference = estimate_neck_circumference(front_preprocessed)
+    head_circumference = estimate_head_circumference(front_preprocessed)
+    foot_length = estimate_foot_length(side_preprocessed)
+    wrist_circumference = estimate_wrist_circumference(front_preprocessed)
+    bicep_circumference = estimate_bicep_circumference(front_preprocessed)
     
     measurements = {
         "height": height,
@@ -42,68 +59,119 @@ def extract_measurements(front_image, side_image):
         "bicep_circumference": bicep_circumference
     }
     
-    return measurements
-# Preprocessing function to apply noise reduction, contrast enhancement, and normalization
-def preprocess_image(image):
-    # Convert to grayscale
-    gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-    
-    # Noise reduction using Gaussian blur
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-    
-    # Contrast enhancement using histogram equalization
-    equalized = cv2.equalizeHist(blurred)
-    
-    # Normalization
-    normalized = cv2.normalize(equalized, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
-    
-    return normalized
+    return measurements, user_height
 
-# Placeholder estimation functions
-def estimate_height(front_image, side_image):
-    # Placeholder function for height estimation
-    return 175  # Example value in centimeters
-
+# Modify estimation functions to take preprocessed images as input
 def estimate_chest(front_image):
     # Placeholder function for chest measurement estimation
-    return 95  # Example value in centimeters
+    # Example: You can implement contour analysis to estimate chest circumference
+    contours, _ = cv2.findContours(front_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    chest_area = 0
+    for contour in contours:
+        chest_area += cv2.contourArea(contour)
+    chest_circumference = np.sqrt(chest_area / np.pi) * 2 * np.pi
+    return chest_circumference
 
 def estimate_waist(front_image):
     # Placeholder function for waist measurement estimation
-    return 80  # Example value in centimeters
+    # Example: You can implement contour analysis to estimate waist circumference
+    contours, _ = cv2.findContours(front_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    waist_area = 0
+    for contour in contours:
+        waist_area += cv2.contourArea(contour)
+    waist_circumference = np.sqrt(waist_area / np.pi) * 2 * np.pi
+    return waist_circumference
 
 def estimate_hip(side_image):
     # Placeholder function for hip measurement estimation
-    return 100  # Example value in centimeters
+    # Example: You can implement contour analysis to estimate hip circumference
+    contours, _ = cv2.findContours(side_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    hip_area = 0
+    for contour in contours:
+        hip_area += cv2.contourArea(contour)
+    hip_circumference = np.sqrt(hip_area / np.pi) * 2 * np.pi
+    return hip_circumference
 
 def estimate_shoulder_width(front_image):
     # Placeholder function for shoulder width estimation
-    return 45  # Example value in centimeters
+    # Example: You can find the widest distance between shoulder contours
+    _, contours, _ = cv2.findContours(front_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    max_width = 0
+    for contour in contours:
+        _, _, width, _ = cv2.boundingRect(contour)
+        if width > max_width:
+            max_width = width
+    return max_width
 
 def estimate_arm_length(front_image):
     # Placeholder function for arm length estimation
-    return 60  # Example value in centimeters
+    # Example: You can find the longest contour representing the arm
+    _, contours, _ = cv2.findContours(front_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    max_length = 0
+    for contour in contours:
+        length = cv2.arcLength(contour, True)
+        if length > max_length:
+            max_length = length
+    return max_length
 
 def estimate_leg_length(side_image):
     # Placeholder function for leg length estimation
-    return 80  # Example value in centimeters
+    # Example: You can find the longest contour representing the leg
+    _, contours, _ = cv2.findContours(side_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    max_length = 0
+    for contour in contours:
+        length = cv2.arcLength(contour, True)
+        if length > max_length:
+            max_length = length
+    return max_length
 
 def estimate_neck_circumference(front_image):
     # Placeholder function for neck circumference estimation
-    return 40  # Example value in centimeters
+    # Example: You can implement contour analysis to estimate neck circumference
+    contours, _ = cv2.findContours(front_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    neck_area = 0
+    for contour in contours:
+        neck_area += cv2.contourArea(contour)
+    neck_circumference = np.sqrt(neck_area / np.pi) * 2 * np.pi
+    return neck_circumference
 
 def estimate_head_circumference(front_image):
     # Placeholder function for head circumference estimation
-    return 55  # Example value in centimeters
+    # Example: You can implement contour analysis to estimate head circumference
+    contours, _ = cv2.findContours(front_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    head_area = 0
+    for contour in contours:
+        head_area += cv2.contourArea(contour)
+    head_circumference = np.sqrt(head_area / np.pi) * 2 * np.pi
+    return head_circumference
 
 def estimate_foot_length(side_image):
     # Placeholder function for foot length estimation
-    return 25  # Example value in centimeters
+    # Example: You can implement contour analysis to estimate foot length
+    contours, _ = cv2.findContours(side_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    foot_length = 0
+    for contour in contours:
+        _, _, width, height = cv2.boundingRect(contour)
+        if height > foot_length:
+            foot_length = height
+    return foot_length
 
 def estimate_wrist_circumference(front_image):
     # Placeholder function for wrist circumference estimation
-    return 18  # Example value in centimeters
+    # Example: You can implement contour analysis to estimate wrist circumference
+    contours, _ = cv2.findContours(front_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    wrist_area = 0
+    for contour in contours:
+        wrist_area += cv2.contourArea(contour)
+    wrist_circumference = np.sqrt(wrist_area / np.pi) * 2 * np.pi
+    return wrist_circumference
 
 def estimate_bicep_circumference(front_image):
     # Placeholder function for bicep circumference estimation
-    return 30  # Example value in centimeters
+    # Example: You can implement contour analysis to estimate bicep circumference
+    contours, _ = cv2.findContours(front_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    bicep_area = 0
+    for contour in contours:
+        bicep_area += cv2.contourArea(contour)
+    bicep_circumference = np.sqrt(bicep_area / np.pi) * 2 * np.pi
+    return bicep_circumference

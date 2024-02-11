@@ -44,19 +44,25 @@ def extract_measurements(front_image, side_image, user_height):
     wrist_circumference = estimate_wrist_circumference(front_preprocessed)
     bicep_circumference = estimate_bicep_circumference(front_preprocessed)
     
+    # Range checks and validations
+    if height > 250:
+        raise ValueError("Height exceeds maximum limit")
+    if any(measurement > 250 for measurement in [chest, waist, hip, shoulder_width, arm_length, leg_length, neck_circumference, head_circumference, foot_length, wrist_circumference, bicep_circumference]):
+        raise ValueError("One or more measurements exceed maximum limit")
+
     measurements = {
-        "height": height,
-        "chest": chest,
-        "waist": waist,
-        "hip": hip,
-        "shoulder_width": shoulder_width,
-        "arm_length": arm_length,
-        "leg_length": leg_length,
-        "neck_circumference": neck_circumference,
-        "head_circumference": head_circumference,
-        "foot_length": foot_length,
-        "wrist_circumference": wrist_circumference,
-        "bicep_circumference": bicep_circumference
+        "height": round(height, 1),
+        "chest": round(chest, 1),
+        "waist": round(waist, 1),
+        "hip": round(hip, 1),
+        "shoulder_width": round(shoulder_width, 1),
+        "arm_length": round(arm_length, 1),
+        "leg_length": round(leg_length, 1),
+        "neck_circumference": round(neck_circumference, 1),
+        "head_circumference": round(head_circumference, 1),
+        "foot_length": round(foot_length, 1),
+        "wrist_circumference": round(wrist_circumference, 1),
+        "bicep_circumference": round(bicep_circumference, 1)
     }
     
     return measurements, user_height

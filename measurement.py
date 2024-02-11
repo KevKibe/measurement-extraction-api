@@ -108,12 +108,8 @@ def estimate_arm_length(front_image):
     # Placeholder function for arm length estimation
     # Example: You can find the longest contour representing the arm
     contours, _ = cv2.findContours(front_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    if len(contours) == 3:  # OpenCV 4.x
-        contours = contours[0]
-    elif len(contours) == 2:  # OpenCV 3.x
-        contours = contours[1]
-    else:
-        raise ValueError("Unexpected return from cv2.findContours()")
+    if len(contours) == 0:
+        raise ValueError("No contours found")
     
     max_length = 0
     for contour in contours:
@@ -122,6 +118,7 @@ def estimate_arm_length(front_image):
             if length > max_length:
                 max_length = length
     return max_length
+
 
 
 def estimate_leg_length(side_image):

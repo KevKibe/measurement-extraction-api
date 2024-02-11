@@ -124,13 +124,14 @@ def estimate_arm_length(front_image):
 def estimate_leg_length(side_image):
     # Placeholder function for leg length estimation
     # Example: You can find the longest contour representing the leg
-    _, contours, _ = cv2.findContours(side_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(side_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     max_length = 0
     for contour in contours:
         length = cv2.arcLength(contour, True)
         if length > max_length:
             max_length = length
     return max_length
+
 
 def estimate_neck_circumference(front_image):
     # Placeholder function for neck circumference estimation
